@@ -45,17 +45,12 @@ public class AdminService {
 
         // pick first technician of that domain
         Technician assigned = techs.get(0);
-
-        // find all unassigned tickets of same domain
-        List<BeforeTicket> sameDomainTickets = beforeTicketRepo
-                .findByDomainAndAssignedTechIdIsNull(domain);
-
-        // assign same technician to all tickets of that domain
-        for (BeforeTicket t : sameDomainTickets) {
-            t.setAssignedTechId(assigned.getTechid());
-            t.setStatus("ASSIGNED");
-            beforeTicketRepo.save(t);
-        }
+        //  assign only THIS ticket
+        ticket.setAssignedTechId(assigned.getTechid());
+        ticket.setStatus("ASSIGNED");
+        beforeTicketRepo.save(ticket);
+        
+        
         return ResponseEntity.ok("Technician assigned successfully");
     }
    
