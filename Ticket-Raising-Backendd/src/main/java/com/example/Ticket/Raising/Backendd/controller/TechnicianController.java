@@ -6,12 +6,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.Ticket.Raising.Backendd.model.AfterTicket;
 import com.example.Ticket.Raising.Backendd.model.TechnicianDTO;
 import com.example.Ticket.Raising.Backendd.service.TechnicianService;
 
@@ -47,31 +46,13 @@ public class TechnicianController {
         return techService.getAssignedTickets(session);
     }
 
-    @PostMapping("/resolve/{tid}")
-    public ResponseEntity<?> resolve(@PathVariable Integer tid,
-                                     @RequestParam String solution,
-                                     HttpSession session) {
+    @PostMapping("/report/{tid}")
+    public ResponseEntity<?> reportToClient(@PathVariable Integer tid,
+                                             @RequestBody AfterTicket reportRequest,
+                                             HttpSession session) {
         if (session.getAttribute("techId") == null)
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("Please login first");
-        return techService.resolveTicket(tid, solution, session);
-    }
-
-    @PutMapping("/inprogress/{tid}")
-    public ResponseEntity<?> inProgress(@PathVariable Integer tid,
-                                         HttpSession session) {
-        if (session.getAttribute("techId") == null)
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("Please login first");
-        return techService.markInProgress(tid, session);
-    }
-
-    @PutMapping("/notresolved/{tid}")
-    public ResponseEntity<?> notResolved(@PathVariable Integer tid,
-                                          HttpSession session) {
-        if (session.getAttribute("techId") == null)
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("Please login first");
-        return techService.markNotResolved(tid, session);
+        return techService.reportToAdmin(tid, reportRequest, session);
     }
 }

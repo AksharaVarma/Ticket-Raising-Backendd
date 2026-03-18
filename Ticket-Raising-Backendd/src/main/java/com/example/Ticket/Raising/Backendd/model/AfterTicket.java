@@ -1,8 +1,12 @@
 package com.example.Ticket.Raising.Backendd.model;
 
 
-import jakarta.persistence.*;
 import java.time.LocalDate;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 
 @Entity
 public class AfterTicket {
@@ -17,8 +21,17 @@ public class AfterTicket {
     private String sol;
     private Integer clientId;
     private Integer techId;
-    public AfterTicket(Integer tid, String issuetitle, LocalDate issuedate, String description, String domain,
-			String status, String sol, Integer clientId, Integer techId, boolean sentToClient) {
+    private Boolean sentToClient;
+    public Boolean getSentToClient() {
+		return sentToClient;
+	}
+
+	public void setSentToClient(Boolean sentToClient) {
+		this.sentToClient = sentToClient;
+	}
+
+	public AfterTicket(Integer tid, String issuetitle, LocalDate issuedate, String description, String domain,
+			String status, String sol, Integer clientId, Integer techId, Boolean sentToClient) {
 		super();
 		this.tid = tid;
 		this.issuetitle = issuetitle;
@@ -104,15 +117,9 @@ public class AfterTicket {
 		this.techId = techId;
 	}
 
-	public boolean isSentToClient() {
-		return sentToClient;
-	}
+	
 
-	public void setSentToClient(boolean sentToClient) {
-		this.sentToClient = sentToClient;
-	}
-
-	private boolean sentToClient;
+	
 
     public AfterTicket() {
     	

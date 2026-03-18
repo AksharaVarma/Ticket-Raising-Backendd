@@ -70,50 +70,42 @@ public class TechnicianService {
         return ResponseEntity.ok(beforeTicketRepo.findByAssignedTechId(techId));
     }
 
-    public ResponseEntity<?> resolveTicket(Integer tid, String solution, HttpSession session) {
-        Integer techId = (Integer) session.getAttribute("techId");
-        Optional<BeforeTicket> opt = beforeTicketRepo.findById(tid);
-        if (opt.isEmpty())
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ticket not found");
-        BeforeTicket bt = opt.get();
-        if (!bt.getAssignedTechId().equals(techId))
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not your ticket");
-        AfterTicket at = new AfterTicket();
-        at.setIssuetitle(bt.getIssuetitle());
-        at.setIssuedate(bt.getIssuedate());
-        at.setDescription(bt.getDescription());
-        at.setDomain(bt.getDomain());
-        at.setClientId(bt.getClientId());
-        at.setTechId(techId);
-        at.setStatus("RESOLVED");
-        at.setSol(solution);
-        at.setSentToClient(false);
-        afterTicketRepo.save(at);
-        beforeTicketRepo.deleteById(tid);
-        return ResponseEntity.ok("Ticket resolved successfully");
-    }
+  public ResponseEntity<?> reportToAdmin(Integer tid, AfterTicket reportRequest,
+          HttpSession session) {
+Integer techId = (Integer) session.getAttribute("techId");
 
-    public ResponseEntity<?> markInProgress(Integer tid, HttpSession session) {
-        Integer techId = (Integer) session.getAttribute("techId");
-        Optional<BeforeTicket> opt = beforeTicketRepo.findById(tid);
-        if (opt.isEmpty())
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ticket not found");
-        BeforeTicket bt = opt.get();
-        if (!bt.getAssignedTechId().equals(techId))
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not your ticket");
-        bt.setStatus("INPROGRESS");
-        return ResponseEntity.ok(beforeTicketRepo.save(bt));
-    }
+Optional<BeforeTicket> opt = beforeTicketRepo.findById(tid);
+if (opt.isEmpty())
+return ResponseEntity.status(HttpStatus.NOT_FOUND)
+.body("Ticket not found");
 
-    public ResponseEntity<?> markNotResolved(Integer tid, HttpSession session) {
-        Integer techId = (Integer) session.getAttribute("techId");
-        Optional<BeforeTicket> opt = beforeTicketRepo.findById(tid);
-        if (opt.isEmpty())
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ticket not found");
-        BeforeTicket bt = opt.get();
-        if (!bt.getAssignedTechId().equals(techId))
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not your ticket");
-        bt.setStatus("NOT_RESOLVED");
-        return ResponseEntity.ok(beforeTicketRepo.save(bt));
-    }
+BeforeTicket bt = opt.get();
+if (!bt.getAssignedTechId().equals(techId))
+return ResponseEntity.status(HttpStatus.FORBIDDEN)
+.body("Not your ticket");
+
+String status = reportRequest.getStatus();
+
+// RESOLVED -> move to AfterTicket table
+if (status.equals("RESOLVED")) {
+AfterTicket at = new AfterTicket();
+at.setIssuetitle(bt.getIssuetitle());
+at.setIssuedate(bt.getIssuedate());
+at.setDescription(bt.getDescription());
+at.setDomain(bt.getDomain());
+at.setClientId(bt.getClientId());
+at.setTechId(techId);
+at.setStatus(reportRequest.getStatus());
+at.setSol(reportRequest.getSol());
+at.setSentToClient(false);
+afterTicketRepo.save(at);
+beforeTicketRepo.deleteById(tid);
+return ResponseEntity.ok("Ticket resolved successfully");
+}
+
+// INPROGRESS or NOT_RESOLVED -> update status in BeforeTicket table
+bt.setStatus(status);
+beforeTicketRepo.save(bt);
+return ResponseEntity.ok("Ticket status updated to " + status);
+}
 }

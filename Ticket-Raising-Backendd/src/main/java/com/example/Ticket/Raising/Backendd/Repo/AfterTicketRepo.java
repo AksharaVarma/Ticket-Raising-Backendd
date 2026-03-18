@@ -11,5 +11,5 @@ import com.example.Ticket.Raising.Backendd.model.AfterTicket;
 
 @Repository
 public interface AfterTicketRepo extends JpaRepository<AfterTicket, Integer> {
-    List<AfterTicket> findByClientIdAndSentToClient(Integer clientId, boolean sentToClient);
+    List<AfterTicket> findByClientIdAndSentToClient(Integer clientId, Boolean sentToClient);
 }
